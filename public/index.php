@@ -1,5 +1,7 @@
 <?php
-echo "Hello, World!";
+require_once '../app/core/App.php';
+
+$app = new App();
 ?>
 
 
