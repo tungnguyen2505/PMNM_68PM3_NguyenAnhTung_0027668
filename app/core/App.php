@@ -9,7 +9,7 @@ class App
     //    if (isset($_GET["url"])) {
     //     echo( $_GET["url"]);
     $urlProcessed = $this->UrlProcess();
-    if(isset($urlProcessed[0]){
+    if(isset($urlProcessed[0])){
         if(file_exists("../app/controllers/".$urlProcessed[0].".php")){
             $this->controller = $urlProcessed[0];
             unset($urlProcessed[0]);
