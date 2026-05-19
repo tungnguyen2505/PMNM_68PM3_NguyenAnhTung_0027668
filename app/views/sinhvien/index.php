@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Danh sacsh sinh vien</title>
 </head>
 <body>
-    h1>Đây là trang </h1>
+    <h1>Danh sách sinh viên</h1>
 </body>
 </html>
