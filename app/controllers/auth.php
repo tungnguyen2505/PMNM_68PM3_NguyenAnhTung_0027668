@@ -1,4 +1,5 @@
 <?php
+session_start();
 class auth{
     protected $user=[
         'admin' => '123456',
