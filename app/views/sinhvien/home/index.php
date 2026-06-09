@@ -73,6 +73,49 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+        
+        <!-- Pagination -->
+        <div style="text-align: center; margin-top: 30px; padding: 20px;">
+            <?php if ($currentPage > 1): ?>
+                <a href="?page=<?php echo $currentPage - 1; ?>" style="padding: 8px 12px; margin: 0 5px; background: #4f46e5; color: white; text-decoration: none; border-radius: 5px;">← Trang trước</a>
+            <?php endif; ?>
+            
+            <!-- Hiển thị số trang -->
+            <div style="margin: 20px 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;">
+                <?php 
+                $startPage = max(1, $currentPage - 2);
+                $endPage = min($totalPages, $currentPage + 2);
+                
+                // Nút trang đầu
+                if ($startPage > 1): ?>
+                    <a href="?page=1" style="padding: 8px 12px; background: #e2e8f0; color: #333; text-decoration: none; border-radius: 5px;">1</a>
+                    <?php if ($startPage > 2): ?>
+                        <span style="padding: 8px;">...</span>
+                    <?php endif;
+                endif;
+                
+                // Nút trang giữa
+                for ($i = $startPage; $i <= $endPage; $i++): ?>
+                    <?php if ($i == $currentPage): ?>
+                        <span style="padding: 8px 12px; background: #4f46e5; color: white; border-radius: 5px; font-weight: bold;"><?php echo $i; ?></span>
+                    <?php else: ?>
+                        <a href="?page=<?php echo $i; ?>" style="padding: 8px 12px; background: #e2e8f0; color: #333; text-decoration: none; border-radius: 5px;"><?php echo $i; ?></a>
+                    <?php endif;
+                endfor;
+                
+                // Nút trang cuối
+                if ($endPage < $totalPages): ?>
+                    <?php if ($endPage < $totalPages - 1): ?>
+                        <span style="padding: 8px;">...</span>
+                    <?php endif; ?>
+                    <a href="?page=<?php echo $totalPages; ?>" style="padding: 8px 12px; background: #e2e8f0; color: #333; text-decoration: none; border-radius: 5px;"><?php echo $totalPages; ?></a>
+                <?php endif; ?>
+            </div>
+            
+            <?php if ($currentPage < $totalPages): ?>
+                <a href="?page=<?php echo $currentPage + 1; ?>" style="padding: 8px 12px; margin: 0 5px; background: #4f46e5; color: white; text-decoration: none; border-radius: 5px;">Trang sau →</a>
+            <?php endif; ?>
+        </div>
     <?php else: ?>
         <p>Không có dữ liệu sinh viên</p>
     <?php endif; ?>
