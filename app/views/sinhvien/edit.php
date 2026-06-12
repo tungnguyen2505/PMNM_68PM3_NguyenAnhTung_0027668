@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Chỉnh sửa sinh viên</title>
     <style>
     .form-container {
         max-width: 500px;
@@ -92,34 +92,58 @@
     .btn-cancel:hover {
         background: #e5e7eb;
     }
+
+    .alert {
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
 </style>
 </head>
 <body>
    <div class="form-container">
-    <h2>Thêm Sinh Viên Mới</h2>
-    <form action="/sinhvien/store" method="POST">
+    <h2>Chỉnh sửa Sinh Viên</h2>
+
+    <?php if (!empty($status)): ?>
+        <?php if ($status === 'error'): ?>
+            <div class="alert alert-error">Cập nhật thất bại. Vui lòng thử lại.</div>
+        <?php elseif ($status === 'empty'): ?>
+            <div class="alert alert-error">Vui lòng điền đầy đủ thông tin.</div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <form action="/sinhvien/update" method="POST">
+        <input type="hidden" name="id" value="<?php echo htmlspecialchars($sinhvien['id']); ?>">
+
         <div class="form-group">
             <label for="hoten">Họ và tên</label>
-            <input type="text" name="hoten" id="hoten" placeholder="Nhập họ và tên sinh viên" required>
+            <input type="text" name="hoten" id="hoten" placeholder="Nhập họ và tên sinh viên" value="<?php echo htmlspecialchars($sinhvien['hoten'] ?? ''); ?>" required>
         </div>
         
         <div class="form-group">
             <label for="mssv">Mã số sinh viên (MSSV)</label>
-            <input type="text" name="mssv" id="mssv" placeholder="Nhập mã số sinh viên" required>
+            <input type="text" name="mssv" id="mssv" placeholder="Nhập mã số sinh viên" value="<?php echo htmlspecialchars($sinhvien['mssv'] ?? ''); ?>" required>
         </div>
 
         <div class="form-group">
             <label for="gioitinh">Giới tính</label>
             <select name="gioitinh" id="gioitinh" required>
-                <option value="" disabled selected>-- Chọn giới tính --</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Khác">Khác</option>
+                <option value="" disabled>-- Chọn giới tính --</option>
+                <option value="Nam" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Nam' ? 'selected' : ''; ?>>Nam</option>
+                <option value="Nữ" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Nữ' ? 'selected' : ''; ?>>Nữ</option>
+                <option value="Khác" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Khác' ? 'selected' : ''; ?>>Khác</option>
             </select>
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn-submit">Thêm sinh viên</button>
+            <button type="submit" class="btn-submit">Cập nhật</button>
             <a href="/sinhvien/index" class="btn-cancel">Hủy bỏ</a>
         </div>
     </form>
