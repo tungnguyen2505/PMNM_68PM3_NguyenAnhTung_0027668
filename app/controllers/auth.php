@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 class auth{
     protected $user=[
         'admin' => '123456',
@@ -18,6 +20,12 @@ class auth{
                 exit();
             }
         }
+    }
+
+    public function logout(){
+        unset($_SESSION['username']);
+        header('Location:/home/login');
+        exit();
     }
 }
     
