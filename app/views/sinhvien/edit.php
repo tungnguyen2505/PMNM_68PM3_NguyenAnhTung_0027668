@@ -137,8 +137,21 @@
             <select name="gioitinh" id="gioitinh" required>
                 <option value="" disabled>-- Chọn giới tính --</option>
                 <option value="Nam" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Nam' ? 'selected' : ''; ?>>Nam</option>
-                <option value="Nữ" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Nữ' ? 'selected' : ''; ?>>Nữ</option>
-                <option value="Khác" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Khác' ? 'selected' : ''; ?>>Khác</option>
+                <option value="Nu" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Nu' ? 'selected' : ''; ?>>Nữ</option>
+                <option value="Khac" <?php echo ($sinhvien['gioitinh'] ?? '') === 'Khac' ? 'selected' : ''; ?>>Khác</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="lophoc_id">Khoa/L&#7899;p</label>
+            <select name="lophoc_id" id="lophoc_id" required>
+                <option value="" disabled>-- Ch&#7885;n khoa/l&#7899;p --</option>
+                <?php foreach (($danhSachLopHoc ?? []) as $lopHoc): ?>
+                    <?php $selectedLopHoc = (string)($sinhvien['lophoc_id'] ?? '') === (string)$lopHoc['id']; ?>
+                    <option value="<?php echo htmlspecialchars((string)$lopHoc['id'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selectedLopHoc ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars(($lopHoc['tenlop'] ?? '') . ' (' . ($lopHoc['malop'] ?? '') . ')', ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </div>
 

@@ -14,12 +14,21 @@ class sinhvienModel {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function create($hoten, $gioitinh, $mssv) {
-        $sql = "INSERT INTO tbl_sinhvien (hoten, gioitinh, mssv) VALUES (:hoten, :gioitinh, :mssv)";
+
+    public function getAllLopHoc() {
+        $sql = "SELECT id, tenlop, malop FROM lophoc ORDER BY tenlop ASC, malop ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function create($hoten, $gioitinh, $mssv, $lophoc_id = null) {
+        $sql = "INSERT INTO tbl_sinhvien (hoten, gioitinh, mssv, lophoc_id) VALUES (:hoten, :gioitinh, :mssv, :lophoc_id)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':hoten', $hoten);
         $stmt->bindParam(':gioitinh', $gioitinh);
         $stmt->bindParam(':mssv', $mssv);
+        $stmt->bindValue(':lophoc_id', $lophoc_id, $lophoc_id === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         return $stmt->execute();
   
     }
@@ -32,10 +41,10 @@ class sinhvienModel {
     }
 
     public function update($id, $hoten, $gioitinh, $mssv, $lophoc_id = null) {
-        if ($lophoc_id) {
+        if ($lophoc_id !== null) {
             $sql = "UPDATE tbl_sinhvien SET hoten = :hoten, gioitinh = :gioitinh, mssv = :mssv, lophoc_id = :lophoc_id WHERE id = :id";
             $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':lophoc_id', $lophoc_id);
+            $stmt->bindValue(':lophoc_id', $lophoc_id, PDO::PARAM_INT);
         } else {
             $sql = "UPDATE tbl_sinhvien SET hoten = :hoten, gioitinh = :gioitinh, mssv = :mssv WHERE id = :id";
             $stmt = $this->conn->prepare($sql);
@@ -54,12 +63,24 @@ class sinhvienModel {
         return $stmt->execute();
     }
 
-    public function paging($limit = 5, $page = 1) {
+    public function paging($limit = 5, $page = 1, $searchKeyword = '') {
         $limit = max(1, (int)$limit);
         $page = max(1, (int)$page);
+        $searchKeyword = trim((string)$searchKeyword);
+        $whereSql = '';
+        $params = [];
+
+        if ($searchKeyword !== '') {
+            $whereSql = " WHERE sv.mssv LIKE :keyword OR sv.hoten LIKE :keyword OR lh.tenlop LIKE :keyword";
+            $params[':keyword'] = '%' . $searchKeyword . '%';
+        }
 
         // Tính tổng số bản ghi
-        $selectAllQuery = $this->conn->prepare("SELECT COUNT(*) as total FROM tbl_sinhvien");
+        $countSql = "SELECT COUNT(*) as total FROM tbl_sinhvien sv LEFT JOIN lophoc lh ON sv.lophoc_id = lh.id" . $whereSql;
+        $selectAllQuery = $this->conn->prepare($countSql);
+        foreach ($params as $name => $value) {
+            $selectAllQuery->bindValue($name, $value, PDO::PARAM_STR);
+        }
         $selectAllQuery->execute();
         $row = $selectAllQuery->fetch(PDO::FETCH_ASSOC);
         $totalRecords = $row ? (int)$row['total'] : 0;
@@ -68,8 +89,11 @@ class sinhvienModel {
         $offset = ($page - 1) * $limit;
 
         // Lấy danh sách sinh viên theo trang (sử dụng concatenation để tránh PDO binding issue với LIMIT)
-        $sql = "SELECT sv.*, lh.tenlop FROM tbl_sinhvien sv LEFT JOIN lophoc lh ON sv.lophoc_id = lh.id ORDER BY sv.id ASC, sv.hoten ASC, sv.mssv ASC LIMIT " . $limit . " OFFSET " . $offset;
+        $sql = "SELECT sv.*, lh.tenlop FROM tbl_sinhvien sv LEFT JOIN lophoc lh ON sv.lophoc_id = lh.id" . $whereSql . " ORDER BY sv.id ASC, sv.hoten ASC, sv.mssv ASC LIMIT " . $limit . " OFFSET " . $offset;
         $stmt = $this->conn->prepare($sql);
+        foreach ($params as $name => $value) {
+            $stmt->bindValue($name, $value, PDO::PARAM_STR);
+        }
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -7,14 +7,17 @@ class sinhvien extends Controller {
         }
 
         $limit = 5;
+        $searchKeyword = trim((string)($_GET['q'] ?? ''));
 
         $sinhvienModel = $this->model('sinhvienModel');
-        $pagingResult = $sinhvienModel->paging($limit, $page);
+        $pagingResult = $sinhvienModel->paging($limit, $page, $searchKeyword);
 
         $this->view('layout/masterlayout', [
             'danhSachSinhVien' => $pagingResult['data'],
             'totalPages' => $pagingResult['totalPages'],
             'currentPage' => $pagingResult['currentPage'],
+            'totalRecords' => $pagingResult['totalRecords'],
+            'searchKeyword' => $searchKeyword,
             'perPage' => $limit,
             'viewname' => 'sinhvien/home/index',
             'title' => 'Danh sách sinh viên'
@@ -22,7 +25,10 @@ class sinhvien extends Controller {
     }
 
     public function create() {
+        $sinhvienModel = $this->model('sinhvienModel');
+
         $this->view('layout/masterlayout', [
+            'danhSachLopHoc' => $sinhvienModel->getAllLopHoc(),
             'viewname' => 'sinhvien/create',
             'title' => 'Thêm sinh viên mới'
         ]);
@@ -33,10 +39,11 @@ class sinhvien extends Controller {
             $hoten = trim($_POST['hoten'] ?? '');
             $gioitinh = trim($_POST['gioitinh'] ?? '');
             $mssv = trim($_POST['mssv'] ?? '');
+            $lophoc_id = filter_input(INPUT_POST, 'lophoc_id', FILTER_VALIDATE_INT);
 
-            if (!empty($hoten) && !empty($gioitinh) && !empty($mssv)) {
+            if (!empty($hoten) && !empty($gioitinh) && !empty($mssv) && $lophoc_id && $lophoc_id > 0) {
                 $sinhvienModel = $this->model('sinhvienModel');
-                $result = $sinhvienModel->create($hoten, $gioitinh, $mssv);
+                $result = $sinhvienModel->create($hoten, $gioitinh, $mssv, $lophoc_id);
                 
                 if ($result) {
                     // Chuyển hướng kèm trạng thái thành công
@@ -74,6 +81,7 @@ class sinhvien extends Controller {
 
         $this->view('layout/masterlayout', [
             'sinhvien' => $sinhvien,
+            'danhSachLopHoc' => $sinhvienModel->getAllLopHoc(),
             'viewname' => 'sinhvien/edit',
             'title' => 'Chỉnh sửa sinh viên'
         ]);
@@ -85,10 +93,11 @@ class sinhvien extends Controller {
             $hoten = trim($_POST['hoten'] ?? '');
             $gioitinh = trim($_POST['gioitinh'] ?? '');
             $mssv = trim($_POST['mssv'] ?? '');
+            $lophoc_id = filter_input(INPUT_POST, 'lophoc_id', FILTER_VALIDATE_INT);
 
-            if ($id && !empty($hoten) && !empty($gioitinh) && !empty($mssv)) {
+            if ($id && !empty($hoten) && !empty($gioitinh) && !empty($mssv) && $lophoc_id && $lophoc_id > 0) {
                 $sinhvienModel = $this->model('sinhvienModel');
-                $result = $sinhvienModel->update($id, $hoten, $gioitinh, $mssv);
+                $result = $sinhvienModel->update($id, $hoten, $gioitinh, $mssv, $lophoc_id);
                 
                 if ($result) {
                     header('Location: /sinhvien/index?status=updated');

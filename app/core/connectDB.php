@@ -12,8 +12,9 @@
          // Tạo kết nối
          if (!self::$conn) {
             try {
-               self::$conn = new PDO("mysql:host=" . self::$host . ";dbname=" . self::$dbname, self::$username, self::$password);
+               self::$conn = new PDO("mysql:host=" . self::$host . ";dbname=" . self::$dbname . ";charset=utf8mb4", self::$username, self::$password);
                self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+               self::$conn->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
             }
             catch (PDOException $e) {
                echo "loi ket noi: " . $e->getMessage();

@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
     <style>
     .form-container {
         max-width: 500px;
@@ -93,8 +88,7 @@
         background: #e5e7eb;
     }
 </style>
-</head>
-<body>
+
    <div class="form-container">
     <h2>Thêm Sinh Viên Mới</h2>
     <form action="/sinhvien/store" method="POST">
@@ -113,8 +107,20 @@
             <select name="gioitinh" id="gioitinh" required>
                 <option value="" disabled selected>-- Chọn giới tính --</option>
                 <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Khác">Khác</option>
+                <option value="Nu">Nữ</option>
+                <option value="Khac">Khác</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="lophoc_id">Khoa/L&#7899;p</label>
+            <select name="lophoc_id" id="lophoc_id" required>
+                <option value="" disabled selected>-- Ch&#7885;n khoa/l&#7899;p --</option>
+                <?php foreach (($danhSachLopHoc ?? []) as $lopHoc): ?>
+                    <option value="<?php echo htmlspecialchars((string)$lopHoc['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php echo htmlspecialchars(($lopHoc['tenlop'] ?? '') . ' (' . ($lopHoc['malop'] ?? '') . ')', ENT_QUOTES, 'UTF-8'); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </div>
 
@@ -124,5 +130,3 @@
         </div>
     </form>
 </div>
-</body>
-</html>
