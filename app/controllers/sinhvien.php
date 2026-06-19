@@ -9,8 +9,18 @@ class sinhvien extends Controller {
         $limit = 5;
         $searchKeyword = trim((string)($_GET['q'] ?? ''));
 
+        // Hỗ trợ cả sort_combo (gộp) lẫn sort+direction riêng lẻ
+        $sortCombo = trim((string)($_GET['sort_combo'] ?? ''));
+        if ($sortCombo !== '' && preg_match('/^(hoten|mssv)_(asc|desc)$/', $sortCombo, $m)) {
+            $sortBy = $m[1];
+            $sortDirection = $m[2];
+        } else {
+            $sortBy = trim((string)($_GET['sort'] ?? 'hoten'));
+            $sortDirection = strtolower(trim((string)($_GET['direction'] ?? 'asc')));
+        }
+
         $sinhvienModel = $this->model('sinhvienModel');
-        $pagingResult = $sinhvienModel->paging($limit, $page, $searchKeyword);
+        $pagingResult = $sinhvienModel->paging($limit, $page, $searchKeyword, $sortBy, $sortDirection);
 
         $this->view('layout/masterlayout', [
             'danhSachSinhVien' => $pagingResult['data'],
@@ -18,6 +28,8 @@ class sinhvien extends Controller {
             'currentPage' => $pagingResult['currentPage'],
             'totalRecords' => $pagingResult['totalRecords'],
             'searchKeyword' => $searchKeyword,
+            'sortBy' => $pagingResult['sortBy'],
+            'sortDirection' => $pagingResult['sortDirection'],
             'perPage' => $limit,
             'viewname' => 'sinhvien/home/index',
             'title' => 'Danh sách sinh viên'

@@ -63,10 +63,17 @@ class sinhvienModel {
         return $stmt->execute();
     }
 
-    public function paging($limit = 5, $page = 1, $searchKeyword = '') {
+    public function paging($limit = 5, $page = 1, $searchKeyword = '', $sortBy = 'hoten', $sortDirection = 'asc') {
         $limit = max(1, (int)$limit);
         $page = max(1, (int)$page);
         $searchKeyword = trim((string)$searchKeyword);
+        $allowedSorts = [
+            'hoten' => 'sv.hoten',
+            'mssv' => 'sv.mssv',
+        ];
+        $sortBy = array_key_exists($sortBy, $allowedSorts) ? $sortBy : 'hoten';
+        $sortDirection = strtolower((string)$sortDirection) === 'desc' ? 'desc' : 'asc';
+        $orderSql = $allowedSorts[$sortBy] . ' ' . strtoupper($sortDirection) . ', sv.id ASC';
         $whereSql = '';
         $params = [];
 
@@ -89,7 +96,7 @@ class sinhvienModel {
         $offset = ($page - 1) * $limit;
 
         // Lấy danh sách sinh viên theo trang (sử dụng concatenation để tránh PDO binding issue với LIMIT)
-        $sql = "SELECT sv.*, lh.tenlop FROM tbl_sinhvien sv LEFT JOIN lophoc lh ON sv.lophoc_id = lh.id" . $whereSql . " ORDER BY sv.id ASC, sv.hoten ASC, sv.mssv ASC LIMIT " . $limit . " OFFSET " . $offset;
+        $sql = "SELECT sv.*, lh.tenlop FROM tbl_sinhvien sv LEFT JOIN lophoc lh ON sv.lophoc_id = lh.id" . $whereSql . " ORDER BY " . $orderSql . " LIMIT " . $limit . " OFFSET " . $offset;
         $stmt = $this->conn->prepare($sql);
         foreach ($params as $name => $value) {
             $stmt->bindValue($name, $value, PDO::PARAM_STR);
@@ -101,7 +108,9 @@ class sinhvienModel {
             'data' => $data,
             'totalRecords' => $totalRecords,
             'totalPages' => $totalPages,
-            'currentPage' => $page
+            'currentPage' => $page,
+            'sortBy' => $sortBy,
+            'sortDirection' => $sortDirection
         ];
     } 
 }
