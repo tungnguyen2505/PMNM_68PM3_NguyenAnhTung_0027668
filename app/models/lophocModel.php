@@ -19,6 +19,35 @@ class lophocModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function paging($limit = 5, $page = 1) {
+        $limit = max(1, (int)$limit);
+        $page = max(1, (int)$page);
+
+        $countStmt = $this->conn->prepare("SELECT COUNT(*) AS total FROM lophoc");
+        $countStmt->execute();
+        $row = $countStmt->fetch(PDO::FETCH_ASSOC);
+        $totalRecords = $row ? (int)$row['total'] : 0;
+        $totalPages = $totalRecords > 0 ? (int)ceil($totalRecords / $limit) : 1;
+        $page = min($page, $totalPages);
+        $offset = ($page - 1) * $limit;
+
+        $sql = "SELECT lh.*, COUNT(sv.id) AS sosinhvien
+                FROM lophoc lh
+                LEFT JOIN tbl_sinhvien sv ON sv.lophoc_id = lh.id
+                GROUP BY lh.id, lh.tenlop, lh.malop
+                ORDER BY lh.tenlop ASC, lh.malop ASC
+                LIMIT " . $limit . " OFFSET " . $offset;
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+
+        return [
+            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'totalRecords' => $totalRecords,
+            'totalPages' => $totalPages,
+            'currentPage' => $page
+        ];
+    }
+
     public function getById($id) {
         $sql = "SELECT * FROM lophoc WHERE id = :id";
         $stmt = $this->conn->prepare($sql);

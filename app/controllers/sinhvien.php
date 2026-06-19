@@ -6,7 +6,11 @@ class sinhvien extends Controller {
             $page = 1;
         }
 
-        $limit = 5;
+        $allowedPageSizes = [5, 10, 20, 50];
+        $pageSize = filter_input(INPUT_GET, 'pageSize', FILTER_VALIDATE_INT);
+        if (!in_array($pageSize, $allowedPageSizes, true)) {
+            $pageSize = 5;
+        }
         $searchKeyword = trim((string)($_GET['q'] ?? ''));
 
         // Hỗ trợ cả sort_combo (gộp) lẫn sort+direction riêng lẻ
@@ -20,7 +24,7 @@ class sinhvien extends Controller {
         }
 
         $sinhvienModel = $this->model('sinhvienModel');
-        $pagingResult = $sinhvienModel->paging($limit, $page, $searchKeyword, $sortBy, $sortDirection);
+        $pagingResult = $sinhvienModel->paging($pageSize, $page, $searchKeyword, $sortBy, $sortDirection);
 
         $this->view('layout/masterlayout', [
             'danhSachSinhVien' => $pagingResult['data'],
@@ -30,7 +34,9 @@ class sinhvien extends Controller {
             'searchKeyword' => $searchKeyword,
             'sortBy' => $pagingResult['sortBy'],
             'sortDirection' => $pagingResult['sortDirection'],
-            'perPage' => $limit,
+            'perPage' => $pageSize,
+            'pageSize' => $pageSize,
+            'pageSizeOptions' => $allowedPageSizes,
             'viewname' => 'sinhvien/home/index',
             'title' => 'Danh sách sinh viên'
         ]);

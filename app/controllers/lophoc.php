@@ -1,10 +1,28 @@
 <?php
 class lophoc extends Controller {
     public function index() {
+        $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
+        if ($page === false || $page === null || $page < 1) {
+            $page = 1;
+        }
+
+        $allowedPageSizes = [5, 10, 20, 50];
+        $pageSize = filter_input(INPUT_GET, 'pageSize', FILTER_VALIDATE_INT);
+        if (!in_array($pageSize, $allowedPageSizes, true)) {
+            $pageSize = 5;
+        }
+
         $lophocModel = $this->model('lophocModel');
+        $pagingResult = $lophocModel->paging($pageSize, $page);
 
         $this->view('layout/masterlayout', [
-            'danhSachLopHoc' => $lophocModel->getAll(),
+            'danhSachLopHoc' => $pagingResult['data'],
+            'totalRecords' => $pagingResult['totalRecords'],
+            'totalPages' => $pagingResult['totalPages'],
+            'currentPage' => $pagingResult['currentPage'],
+            'perPage' => $pageSize,
+            'pageSize' => $pageSize,
+            'pageSizeOptions' => $allowedPageSizes,
             'viewname' => 'lophoc/index',
             'title' => 'Danh sách lớp học'
         ]);

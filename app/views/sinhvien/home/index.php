@@ -8,8 +8,10 @@ $searchKeyword = isset($searchKeyword) ? trim((string)$searchKeyword) : '';
 $sortBy = isset($sortBy) && in_array($sortBy, ['mssv', 'hoten'], true) ? $sortBy : 'hoten';
 $sortDirection = isset($sortDirection) && $sortDirection === 'desc' ? 'desc' : 'asc';
 $perPage = isset($perPage) ? max(1, (int)$perPage) : max(1, count($danhSachSinhVien));
+$pageSize = isset($pageSize) ? (int)$pageSize : $perPage;
+$pageSizeOptions = $pageSizeOptions ?? [5, 10, 20, 50];
 $hiddenColumns = ['id', 'lophoc_id'];
-$buildListUrl = function (array $overrides = []) use ($searchKeyword, $sortBy, $sortDirection) {
+$buildListUrl = function (array $overrides = []) use ($searchKeyword, $sortBy, $sortDirection, $pageSize) {
     $query = ['page' => 1];
     if ($searchKeyword !== '') {
         $query['q'] = $searchKeyword;
@@ -18,6 +20,7 @@ $buildListUrl = function (array $overrides = []) use ($searchKeyword, $sortBy, $
         $query['sort'] = $sortBy;
         $query['direction'] = $sortDirection;
     }
+    $query['pageSize'] = $pageSize;
     $query = array_merge($query, $overrides);
 
     return '?' . http_build_query($query);
@@ -126,6 +129,10 @@ $sortComboOptions = [
 
     .filter-field--compact {
         flex: 0 0 210px;
+    }
+
+    .filter-field--small {
+        flex: 0 0 120px;
     }
 
     .filter-field label {
@@ -535,6 +542,19 @@ $sortComboOptions = [
                 </div>
             </div>
 
+            <div class="filter-field filter-field--small">
+                <label for="pageSize">Hi&#7875;n th&#7883;</label>
+                <div class="select-wrap">
+                    <select name="pageSize" id="pageSize" onchange="this.form.submit()">
+                        <?php foreach ($pageSizeOptions as $option): ?>
+                            <option value="<?php echo (int)$option; ?>" <?php echo (int)$option === $pageSize ? 'selected' : ''; ?>>
+                                <?php echo (int)$option; ?>/trang
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
             <!-- Actions -->
             <div class="filter-actions">
                 <button type="submit" class="btn-search">
@@ -543,7 +563,7 @@ $sortComboOptions = [
                     </svg>
                     T&#236;m ki&#7871;m
                 </button>
-                <?php if ($searchKeyword !== '' || $sortBy !== 'hoten' || $sortDirection !== 'asc'): ?>
+                <?php if ($searchKeyword !== '' || $sortBy !== 'hoten' || $sortDirection !== 'asc' || $pageSize !== 5): ?>
                     <a href="/sinhvien/index" class="btn-clear">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
